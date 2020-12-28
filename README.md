@@ -2,4 +2,4 @@
 
 Course webpage: https://pdos.csail.mit.edu/6.S081/2020/schedule.html
 
-We implement the lab experiments and standard codes in the course.
+We implement the lab experiments in the course.
