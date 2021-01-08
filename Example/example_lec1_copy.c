@@ -15,5 +15,7 @@ main()
     write(1, buf, n);
   }
 
+  printf("Wenqing says: finishing!\n");
+
   exit(0);
 }
