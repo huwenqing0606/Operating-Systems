@@ -2,16 +2,16 @@
 #include "kernel/stat.h"
 #include "user/user.h"
 
-#define STDIN_FILENO  0
-#define STDOUT_FILENO 1
-#define STDERR_FILENO 2
+#define STDIN  0
+#define STDOUT 1
+#define STDERR 2
 
 int
 main(int argc, char* argv[])
 {
     if (argc != 2)
     {
-	fprintf(STDERR_FILENO, "Wenqing says: Syntax error! Use: sleep <number>\n");
+	fprintf(STDERR, "Wenqing says: Syntax error! Use: sleep <number>\n");
         exit(1);
     }
     int number = atoi(argv[1]);
