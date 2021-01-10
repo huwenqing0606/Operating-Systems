@@ -11,17 +11,19 @@
 
 int 
 main(){
-    int numbers[36], p[2];
+    int filtered_numbers[36], p[2];
     int i, index = 0;
     int pid;
+    // the array fitered_numbers[] store the numbers after each round of filtering
+    // the primes are on the top of this array at each round of filtration  
     for (i = 2; i <= 35; i++)
-    {
-        numbers[index] = i;
+    { // initialize filtered_numbers[]
+        filtered_numbers[index] = i;
         index++;
     }
-    while (index > 0)
+    while (index > 0) // filter at each round, until the last pipe
     {
-        pipe(p);
+        pipe(p); // initialize the pipe
         if ((pid = fork()) < 0) 
         {
             fprintf(ERR, "fork error\n");
@@ -43,9 +45,9 @@ main(){
                 }
                 else
                 {
-                    if (buf % prime != 0) {
-                            numbers[index] = buf;
-                            index++;
+                    if (buf % prime != 0) { // filter the number buf if it is divided by the prime
+                            filtered_numbers[index] = buf;
+                            index++;  // if not a prime, index will not increase
                     }
                 }
             }
@@ -56,12 +58,12 @@ main(){
         else // parent process
         {
             close(p[READEND]);
-            for (i = 0; i < index; i++)
+            for (i = 0; i < index; i++) // write the primes at previous round into the writeend of the pipe
             {
-                write(p[WRITEEND], &numbers[i], sizeof(numbers[i]));
+                write(p[WRITEEND], &filtered_numbers[i], sizeof(filtered_numbers[i]));
             }
             close(p[WRITEEND]);
-            wait((int *)0);
+            wait((int *)0); // wait until the child process exits
             exit(0); // exit the current parent and child processes made from fork()
         }
     }
