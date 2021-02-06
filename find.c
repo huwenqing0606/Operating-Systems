@@ -87,7 +87,8 @@ find(char *path, char *name)
   close(fd);
 }
 
-int main(int argc, char *argv[])
+int 
+main(int argc, char *argv[])
 {
     if (argc != 3) 
     {

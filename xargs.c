@@ -8,7 +8,8 @@
 #define MAXIN 1024
 #define MAXWORD 64
 
-int main(int argc, char *argv[])
+int 
+main(int argc, char *argv[])
 {
     char inputline[MAXIN];
     char* params_original[MAXARG];
