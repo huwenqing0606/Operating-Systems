@@ -146,6 +146,7 @@ syscall(void)
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     p->trapframe->a0 = syscalls[num]();
     if (p->mask & (1 << num)) // the system call to trace is 1<<num, check if it same as p->mask
+                              // p->mask of the form (1 << SYS_fork) et al
     { // add the trace functionality
       // print the trace output
       printf("%d: syscall %s -> %d\n", 
