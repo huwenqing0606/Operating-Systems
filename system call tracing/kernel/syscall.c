@@ -104,7 +104,7 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_wait(void);
 extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
-extern uint64 sys_trace(void);  // add the ``trace" function to retrieve system call arguments from user space
+extern uint64 sys_trace(void); // add the ``trace" function to retrieve system call arguments from user space
 
 static uint64 (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -128,7 +128,7 @@ static uint64 (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
-[SYS_trace]   sys_trace,    // add the ``trace" function stub
+[SYS_trace]   sys_trace,  // add the ``trace" function stub
 };
 
 // add names of system calls
@@ -145,10 +145,11 @@ syscall(void)
   num = p->trapframe->a7;
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     p->trapframe->a0 = syscalls[num]();
-    if (p->mask & (1 << num))
+    if (p->mask & (1 << num)) // the system call to trace is 1<<num, check if it same as p->mask
     { // add the trace functionality
       // print the trace output
-      printf("%d: syscall %s -> %d\n",p->pid, syscalls_name[num], p->trapframe->a0);
+      printf("%d: syscall %s -> %d\n", 
+              p->pid, syscalls_name[num], p->trapframe->a0);
     }
   } else {
     printf("%d %s: unknown sys call %d\n",
