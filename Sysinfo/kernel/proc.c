@@ -699,5 +699,10 @@ procdump(void)
 
 uint64
 nproc(void){
-  return 1;
+  int n=0; // number of processes whose state is not UNUSED
+  int i;
+  for (i=1;i<NPROC;i++){
+    if (proc[i].state != UNUSED) n++;
+  }
+  return n;
 }
