@@ -82,7 +82,7 @@ kalloc(void)
 }
 
 
-// take the number of bytes in the free memory
+// freemem takes the number of bytes in the free memory
 uint64
 freemem(void){
   struct run* p = kmem.freelist; // kmem is the memory, kmem.freelist is the free memory list

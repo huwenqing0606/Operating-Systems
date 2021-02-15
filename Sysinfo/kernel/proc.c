@@ -697,6 +697,7 @@ procdump(void)
   }
 }
 
+// nproc calculated the number of processes whose state is not UNUSED
 uint64
 nproc(void){
   int n=0; // number of processes whose state is not UNUSED
