@@ -465,6 +465,9 @@ vmprint_recursion(pagetable_t pagetable, int level)
       uint64 child = PTE2PA(pte);
       printf("%d: pte %p pa %p\n", i, pte, child);
       if ((pte & (PTE_R|PTE_W|PTE_X)) == 0)
+        // at the leafnode of the tree , pte & (PTE_R|PTE_W|PTE_X) == 1
+        // otherwise not the leafnode of the tree
+        // compare with vm.c line 286 in freewalk()
         vmprint_recursion((pagetable_t)child, level+1);
     }
   } 
