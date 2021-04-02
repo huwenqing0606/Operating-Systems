@@ -21,6 +21,7 @@ static void freeproc(struct proc *p);
 
 extern char trampoline[]; // trampoline.S
 
+
 // initialize the proc table at boot time.
 void
 procinit(void)
@@ -31,15 +32,16 @@ procinit(void)
   for(p = proc; p < &proc[NPROC]; p++) {
       initlock(&p->lock, "proc");
 
+      // move this part to allocproc()
       // Allocate a page for the process's kernel stack.
       // Map it high in memory, followed by an invalid
       // guard page.
-      char *pa = kalloc();
-      if(pa == 0)
-        panic("kalloc");
-      uint64 va = KSTACK((int) (p - proc));
-      kvmmap(va, (uint64)pa, PGSIZE, PTE_R | PTE_W);
-      p->kstack = va;
+      //char *pa = kalloc();
+      //if(pa == 0)
+      //  panic("kalloc");
+      //uint64 va = KSTACK((int) (p - proc));
+      //kvmmap(va, (uint64)pa, PGSIZE, PTE_R | PTE_W);
+      //p->kstack = va;
   }
   kvminithart();
 }
@@ -131,15 +133,14 @@ found:
 
   // For each process's kernel page table, set a mapping for that process's kernel stack
   // Allocate a page for the process's kernel stack.
-  // Map it high in memory, followed by an invalid
-  // guard page.
-  // this piece is taken from procinit
+  // Map it high in memory, followed by an invalid guard page.
+  // this piece is taken from procinit() and the part there is deleted
   char *pa = kalloc();
   if(pa == 0)
     panic("kalloc");
   uint64 va = KSTACK((int) (p - proc));
   // add the kernel stack map to user kernel pagetable
-  uvmmap(p->kernelpt, va, (uint64)pa, PGSIZE, PTE_R | PTE_W);
+  uvmmap(p->kernel_pagetable, va, (uint64)pa, PGSIZE, PTE_R | PTE_W);
   p->kstack = va;
 
   // Set up new context to start executing at forkret,
@@ -160,8 +161,24 @@ freeproc(struct proc *p)
   if(p->trapframe)
     kfree((void*)p->trapframe);
   p->trapframe = 0;
+  // delete kernel stack
+  if (p->kstack)
+  {
+   pte_t* pte = walk(p->kernel_pagetable, p->kstack, 0);
+    if (pte == 0)
+      panic("freeproc: kstack");
+    kfree((void*)PTE2PA(*pte));
+  }
+  
+  p->kstack = 0;
+
   if(p->pagetable)
     proc_freepagetable(p->pagetable, p->sz);
+
+  // free the kernel pagetable of the process
+  if(p->kernel_pagetable)
+    proc_freekernelpagetable(p->kernel_pagetable);
+
   p->pagetable = 0;
   p->sz = 0;
   p->pid = 0;
@@ -215,6 +232,32 @@ proc_freepagetable(pagetable_t pagetable, uint64 sz)
   uvmunmap(pagetable, TRAPFRAME, 1, 0);
   uvmfree(pagetable, sz);
 }
+
+// Free a process's kernel page table
+// we must free a page table without also freeing the leaf physical memory pages
+// mimicking freewalk() in vm.c but did some small changes
+// we already did a similar job at vmprint_recursion() in vm.c
+void 
+proc_freekernelpagetable(pagetable_t pagetable)
+{
+  // there are 2^9 = 512 PTEs in a page table.
+  for(int i = 0; i < 512; i++){
+    pte_t pte = pagetable[i];
+    if((pte & PTE_V) && (pte & (PTE_R|PTE_W|PTE_X)) == 0){
+      // this PTE points to a lower-level page table.
+      // at the leafnode of the tree , pte & (PTE_R|PTE_W|PTE_X) == 1
+      // otherwise not the leafnode of the tree
+      // compare with vm.c line 286 in freewalk()
+      pagetable[i] = 0;
+      uint64 child = PTE2PA(pte);
+      proc_freekernelpagetable((pagetable_t)child);
+    } else if(pte & PTE_V){
+      panic("proc free kernel pagetable: leaf");
+    }
+  }
+  kfree((void*)pagetable);
+}
+
 
 // a user program that calls exec("/init")
 // od -t xC initcode
@@ -494,6 +537,14 @@ scheduler(void)
         // before jumping back to us.
         p->state = RUNNING;
         c->proc = p;
+
+        // load the process's kernel page table into the core's satp register 
+        // see kvminithart() for inspiration 
+        // save the kernel page table of the current process into the satp register
+        w_satp(MAKE_SATP(p->kernel_pagetable));
+        // call sfence_vma() after calling w_satp().
+        sfence_vma();
+
         swtch(&c->context, &p->context);
 
         // Process is done running for now.
@@ -507,6 +558,12 @@ scheduler(void)
 #if !defined (LAB_FS)
     if(found == 0) {
       intr_on();
+      // use kernel_pagetable when no process is running
+      // see kvminithart() for inspiration. 
+      //w_satp(MAKE_SATP(kernel_pagetable));
+      // call sfence_vma() after calling w_satp().
+      //sfence_vma();
+
       asm volatile("wfi");
     }
 #else

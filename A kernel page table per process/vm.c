@@ -3,6 +3,8 @@
 #include "memlayout.h"
 #include "elf.h"
 #include "riscv.h"
+#include "spinlock.h"
+#include "proc.h"
 #include "defs.h"
 #include "fs.h"
 
@@ -131,8 +133,10 @@ kvmpa(uint64 va)
   uint64 off = va % PGSIZE;
   pte_t *pte;
   uint64 pa;
+  struct proc *p = myproc();
   
-  pte = walk(kernel_pagetable, va, 0);
+  // has to change the kernel_pagetable to p->kernel_pagetable for the specific user process
+  pte = walk(p->kernel_pagetable, va, 0);
   if(pte == 0)
     panic("kvmpa");
   if((*pte & PTE_V) == 0)
@@ -480,9 +484,7 @@ vmprint(pagetable_t pagetable)
 }
 
 
-/*
- * create a copy of the global kernel page table for each single user process
- */
+// create a copy of the global kernel page table for each single user process
 pagetable_t
 process_kernel_pagetable_init()
 {
@@ -505,7 +507,7 @@ process_kernel_pagetable_init()
   // map the trampoline for trap entry/exit to
   // the highest virtual address in the kernel.
   uvmmap(process_kernel_pagetable, TRAMPOLINE, (uint64)trampoline, PGSIZE, PTE_R | PTE_X);
-  return process_kernel_pagetable
+  return process_kernel_pagetable;
 }
 
 // add a mapping to the user page table.
