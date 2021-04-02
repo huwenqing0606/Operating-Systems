@@ -248,12 +248,12 @@ proc_freekernelpagetable(pagetable_t pagetable)
       // at the leafnode of the tree , pte & (PTE_R|PTE_W|PTE_X) == 1
       // otherwise not the leafnode of the tree
       // compare with vm.c line 286 in freewalk()
-      pagetable[i] = 0;
       uint64 child = PTE2PA(pte);
       proc_freekernelpagetable((pagetable_t)child);
-    } else if(pte & PTE_V){
-      panic("proc free kernel pagetable: leaf");
-    }
+      pagetable[i] = 0;
+    } //else if(pte & PTE_V){
+      //panic("proc free kernel pagetable: leaf");
+    //}
   }
   kfree((void*)pagetable);
 }
@@ -558,7 +558,7 @@ scheduler(void)
 #if !defined (LAB_FS)
     if(found == 0) {
       intr_on();
-      // use kernel_pagetable when no process is running
+      // use kernel_pagetable when no process is running (already in kvminithart()?)
       // see kvminithart() for inspiration. 
       //w_satp(MAKE_SATP(kernel_pagetable));
       // call sfence_vma() after calling w_satp().
