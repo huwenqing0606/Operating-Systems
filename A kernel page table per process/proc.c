@@ -251,9 +251,7 @@ proc_freekernelpagetable(pagetable_t pagetable)
       uint64 child = PTE2PA(pte);
       proc_freekernelpagetable((pagetable_t)child);
       pagetable[i] = 0;
-    } //else if(pte & PTE_V){
-      //panic("proc free kernel pagetable: leaf");
-    //}
+    } 
   }
   kfree((void*)pagetable);
 }
@@ -558,12 +556,9 @@ scheduler(void)
 #if !defined (LAB_FS)
     if(found == 0) {
       intr_on();
-      // use kernel_pagetable when no process is running (already in kvminithart()?)
-      // see kvminithart() for inspiration. 
-      //w_satp(MAKE_SATP(kernel_pagetable));
-      // call sfence_vma() after calling w_satp().
-      //sfence_vma();
-
+      // use kernel_pagetable when no process is running 
+      // this is done in kvminithart(), so we just call kvminithart() in vm.c
+      kvminithart();
       asm volatile("wfi");
     }
 #else
