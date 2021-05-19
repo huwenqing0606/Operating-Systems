@@ -23,6 +23,8 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int sigalarm(int ticks, void (*handler)()); // the sigalarm system call
+int sigreturn(void);    // the sigreturn system call
 
 
 // ulib.c
@@ -42,7 +44,3 @@ int atoi(const char*);
 int memcmp(const void *, const void *, uint);
 void *memcpy(void *, const void *, uint);
 
-
-// alarmtest.c
-int sigalarm(int ticks, void (*handler)());
-int sigreturn(void);
