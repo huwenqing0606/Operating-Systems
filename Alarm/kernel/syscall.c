@@ -106,7 +106,7 @@ extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
 // add system call names for sigalarm and sigreturn
 extern uint64 sys_sigalarm(void);
-extern unit64 sys_sigreturn(void);
+extern uint64 sys_sigreturn(void);
 
 static uint64 (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -132,7 +132,7 @@ static uint64 (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 // match sigalarm and sigreturn with the system call numbers claimed in syscall.h
 [SYS_sigalarm] sys_sigalarm,
-[SYS_sigreturn] sys_sigreturn
+[SYS_sigreturn] sys_sigreturn,
 };
 
 void
