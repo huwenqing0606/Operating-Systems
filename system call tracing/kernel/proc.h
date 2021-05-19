@@ -103,5 +103,46 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  int mask;                    // mask value
+
+
+  // store the alarm interval and the pointer to the handler function in new fields in the proc structure
+  void (*handler)();           // the pointer to the application function fn to be called by sigalarm(n, fn)
+  int alarm_interval;          // the time interval between alarms
+  int total_ticks;             // calculate the total ticks
+  int is_handler_in;           // determine if the handler function is still in alarm
+
+  // save the register information of trapframe->epc and all other registers before entering the handler function of alarm 
+  uint64 historic_epc;           
+  uint64 historic_ra;
+  uint64 historic_sp;
+  uint64 historic_gp;
+  uint64 historic_tp;
+  uint64 historic_t0;
+  uint64 historic_t1;
+  uint64 historic_t2;
+  uint64 historic_t3;
+  uint64 historic_t4;
+  uint64 historic_t5;
+  uint64 historic_t6;
+  uint64 historic_a0;
+  uint64 historic_a1;
+  uint64 historic_a2;
+  uint64 historic_a3;
+  uint64 historic_a4;
+  uint64 historic_a5;
+  uint64 historic_a6;
+  uint64 historic_a7;
+  uint64 historic_s0;
+  uint64 historic_s1;
+  uint64 historic_s2;
+  uint64 historic_s3;
+  uint64 historic_s4;
+  uint64 historic_s5;
+  uint64 historic_s6;
+  uint64 historic_s7;
+  uint64 historic_s8;
+  uint64 historic_s9;
+  uint64 historic_s10;
+  uint64 historic_s11;
+
 };

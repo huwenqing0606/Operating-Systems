@@ -70,6 +70,8 @@ sys_sleep(void)
     sleep(&ticks, &tickslock);
   }
   release(&tickslock);
+  // call backtrace() in printf.c
+  backtrace();
   return 0;
 }
 
@@ -96,16 +98,62 @@ sys_uptime(void)
   return xticks;
 }
 
-// the trace system call
-// Add a sys_trace() function in kernel/sysproc.c that implements the new 
-//   system call by remembering its argument in a new variable in the proc 
-//   structure (see kernel/proc.h).
+// the sigalarm() system call corresponding to sigalarm(int ticks, void (*handler)()) in user space
 uint64
-sys_trace(void)
+sys_sigalarm(void)
 {
-  int n;
-  if (argint(0, &n) < 0) // get parameter
+  int interval;
+  uint64 handler;
+  struct proc* p = myproc();
+  if (argint(0, &interval) < 0)
     return -1;
-  myproc()->mask = n;    // save argv[1] to the mask of current process
+  if (argaddr(1, &handler) < 0)
+    return -1;
+  p->alarm_interval = interval;
+  p->handler = (void(*)())handler;
+  p->is_handler_in = 1;
+  return 0;
+}
+
+// return the original p->trapframe->epc register info and all other registers when trap is done with the handler function in alarm
+uint64
+sys_sigreturn(void)
+{
+  // reload the registers
+  struct proc *p = myproc();
+  p->trapframe->epc = p->historic_epc; 
+  p->trapframe->ra = p->historic_ra; 
+  p->trapframe->sp = p->historic_sp; 
+  p->trapframe->gp = p->historic_gp; 
+  p->trapframe->tp = p->historic_tp; 
+  p->trapframe->a0 = p->historic_a0; 
+  p->trapframe->a1 = p->historic_a1; 
+  p->trapframe->a2 = p->historic_a2; 
+  p->trapframe->a3 = p->historic_a3; 
+  p->trapframe->a4 = p->historic_a4; 
+  p->trapframe->a5 = p->historic_a5; 
+  p->trapframe->a6 = p->historic_a6; 
+  p->trapframe->a7 = p->historic_a7; 
+  p->trapframe->t0 = p->historic_t0; 
+  p->trapframe->t1 = p->historic_t1; 
+  p->trapframe->t2 = p->historic_t2; 
+  p->trapframe->t3 = p->historic_t3; 
+  p->trapframe->t4 = p->historic_t4; 
+  p->trapframe->t5 = p->historic_t5; 
+  p->trapframe->t6 = p->historic_t6;
+  p->trapframe->s0 = p->historic_s0;
+  p->trapframe->s1 = p->historic_s1;
+  p->trapframe->s2 = p->historic_s2;
+  p->trapframe->s3 = p->historic_s3;
+  p->trapframe->s4 = p->historic_s4;
+  p->trapframe->s5 = p->historic_s5;
+  p->trapframe->s6 = p->historic_s6;
+  p->trapframe->s7 = p->historic_s7;
+  p->trapframe->s8 = p->historic_s8;
+  p->trapframe->s9 = p->historic_s9;
+  p->trapframe->s10 = p->historic_s10;
+  p->trapframe->s11 = p->historic_s11;
+
+  p->is_handler_in = 0;
   return 0;
 }

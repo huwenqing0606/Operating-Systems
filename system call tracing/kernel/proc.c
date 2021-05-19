@@ -127,6 +127,10 @@ found:
   p->context.ra = (uint64)forkret;
   p->context.sp = p->kstack + PGSIZE;
 
+  // initialize proc fields in allocproc() in proc.c for alarmtest
+  p->total_ticks = 0;
+  p->is_handler_in = 0;
+
   return p;
 }
 
@@ -266,9 +270,6 @@ fork(void)
   if((np = allocproc()) == 0){
     return -1;
   }
-
-  // Modify fork() (see kernel/proc.c) to copy the trace mask from the parent to the child process
-  np->mask = p->mask;
 
   // Copy user memory from parent to child.
   if(uvmcopy(p->pagetable, np->pagetable, p->sz) < 0){
@@ -486,10 +487,14 @@ scheduler(void)
       }
       release(&p->lock);
     }
+#if !defined (LAB_FS)
     if(found == 0) {
       intr_on();
       asm volatile("wfi");
     }
+#else
+    ;
+#endif
   }
 }
 
@@ -696,5 +701,3 @@ procdump(void)
     printf("\n");
   }
 }
-
-
