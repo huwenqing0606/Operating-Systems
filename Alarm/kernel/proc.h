@@ -111,7 +111,7 @@ struct proc {
   int total_ticks;             // calculate the total ticks
   int is_handler_in;           // determine if the handler function is still in alarm
 
-  // save the register information of trapframe->epc before entering the handler function of alarm 
+  // save the register information of trapframe->epc and all other registers before entering the handler function of alarm 
   uint64 his_epc;           
   uint64 his_ra;
   uint64 his_sp;
