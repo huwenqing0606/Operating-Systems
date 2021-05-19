@@ -111,6 +111,7 @@ sys_sigalarm(void)
     return -1;
   p->alarm_interval = interval;
   p->handler = (void(*)())handler;
+  p->is_handler_in = 1;
   return 0;
 }
 
@@ -120,39 +121,39 @@ sys_sigreturn(void)
 {
   // reload the registers
   struct proc *p = myproc();
-  p->trapframe->epc = p->his_epc; 
-  p->trapframe->ra = p->his_ra; 
-  p->trapframe->sp = p->his_sp; 
-  p->trapframe->gp = p->his_gp; 
-  p->trapframe->tp = p->his_tp; 
-  p->trapframe->a0 = p->his_a0; 
-  p->trapframe->a1 = p->his_a1; 
-  p->trapframe->a2 = p->his_a2; 
-  p->trapframe->a3 = p->his_a3; 
-  p->trapframe->a4 = p->his_a4; 
-  p->trapframe->a5 = p->his_a5; 
-  p->trapframe->a6 = p->his_a6; 
-  p->trapframe->a7 = p->his_a7; 
-  p->trapframe->t0 = p->his_t0; 
-  p->trapframe->t1 = p->his_t1; 
-  p->trapframe->t2 = p->his_t2; 
-  p->trapframe->t3 = p->his_t3; 
-  p->trapframe->t4 = p->his_t4; 
-  p->trapframe->t5 = p->his_t5; 
-  p->trapframe->t6 = p->his_t6;
-  p->trapframe->s0 = p->his_s0;
-  p->trapframe->s1 = p->his_s1;
-  p->trapframe->s2 = p->his_s2;
-  p->trapframe->s3 = p->his_s3;
-  p->trapframe->s4 = p->his_s4;
-  p->trapframe->s5 = p->his_s5;
-  p->trapframe->s6 = p->his_s6;
-  p->trapframe->s7 = p->his_s7;
-  p->trapframe->s8 = p->his_s8;
-  p->trapframe->s9 = p->his_s9;
-  p->trapframe->s10 = p->his_s10;
-  p->trapframe->s11 = p->his_s11;
+  p->trapframe->epc = p->historic_epc; 
+  p->trapframe->ra = p->historic_ra; 
+  p->trapframe->sp = p->historic_sp; 
+  p->trapframe->gp = p->historic_gp; 
+  p->trapframe->tp = p->historic_tp; 
+  p->trapframe->a0 = p->historic_a0; 
+  p->trapframe->a1 = p->historic_a1; 
+  p->trapframe->a2 = p->historic_a2; 
+  p->trapframe->a3 = p->historic_a3; 
+  p->trapframe->a4 = p->historic_a4; 
+  p->trapframe->a5 = p->historic_a5; 
+  p->trapframe->a6 = p->historic_a6; 
+  p->trapframe->a7 = p->historic_a7; 
+  p->trapframe->t0 = p->historic_t0; 
+  p->trapframe->t1 = p->historic_t1; 
+  p->trapframe->t2 = p->historic_t2; 
+  p->trapframe->t3 = p->historic_t3; 
+  p->trapframe->t4 = p->historic_t4; 
+  p->trapframe->t5 = p->historic_t5; 
+  p->trapframe->t6 = p->historic_t6;
+  p->trapframe->s0 = p->historic_s0;
+  p->trapframe->s1 = p->historic_s1;
+  p->trapframe->s2 = p->historic_s2;
+  p->trapframe->s3 = p->historic_s3;
+  p->trapframe->s4 = p->historic_s4;
+  p->trapframe->s5 = p->historic_s5;
+  p->trapframe->s6 = p->historic_s6;
+  p->trapframe->s7 = p->historic_s7;
+  p->trapframe->s8 = p->historic_s8;
+  p->trapframe->s9 = p->historic_s9;
+  p->trapframe->s10 = p->historic_s10;
+  p->trapframe->s11 = p->historic_s11;
 
-  p->is_handler_in = 1;
+  p->is_handler_in = 0;
   return 0;
 }

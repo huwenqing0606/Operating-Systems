@@ -129,6 +129,7 @@ found:
 
   // initialize proc fields in allocproc() in proc.c for alarmtest
   p->total_ticks = 0;
+  p->is_handler_in = 0;
 
   return p;
 }
