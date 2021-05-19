@@ -109,5 +109,40 @@ struct proc {
   void (*handler)();           // the pointer to the application function fn to be called by sigalarm(n, fn)
   int alarm_interval;          // the time interval between alarms
   int total_ticks;             // calculate the total ticks
+  int is_handler_in;           // determine if the handler function is still in alarm
+
+  // save the register information of trapframe->epc before entering the handler function of alarm 
+  uint64 his_epc;           
+  uint64 his_ra;
+  uint64 his_sp;
+  uint64 his_gp;
+  uint64 his_tp;
+  uint64 his_t0;
+  uint64 his_t1;
+  uint64 his_t2;
+  uint64 his_t3;
+  uint64 his_t4;
+  uint64 his_t5;
+  uint64 his_t6;
+  uint64 his_a0;
+  uint64 his_a1;
+  uint64 his_a2;
+  uint64 his_a3;
+  uint64 his_a4;
+  uint64 his_a5;
+  uint64 his_a6;
+  uint64 his_a7;
+  uint64 his_s0;
+  uint64 his_s1;
+  uint64 his_s2;
+  uint64 his_s3;
+  uint64 his_s4;
+  uint64 his_s5;
+  uint64 his_s6;
+  uint64 his_s7;
+  uint64 his_s8;
+  uint64 his_s9;
+  uint64 his_s10;
+  uint64 his_s11;
 
 };
