@@ -71,9 +71,10 @@ usertrap(void)
     else if (r_scause() == 15 || r_scause() == 13) // check whether a fault is a page fault by seeing if r_scause() is 13 or 15
   {
     uint64 va = r_stval(); // r_stval() returns the RISC-V stval register, which contains the virtual address that caused the page fault
+    printf("page fault %p\n", va); // print the virtual address of the page fault
     uint64 ka = (uint64) kalloc();
     if (ka == 0) 
-      p->killed = -1;
+      p->killed = 1;
     else
     { // stealed from uvmalloc() in vm.c
       memset((void*)ka, 0, PGSIZE); // mapping a newly-allocated page of physical memory at the faulting address
@@ -81,7 +82,7 @@ usertrap(void)
       if (mappages(p->pagetable, va, PGSIZE, ka, PTE_U | PTE_W| PTE_R) != 0)
       {
         kfree((void*)ka);
-        p->killed = -1;
+        p->killed = 1;
       }
     }
   }
