@@ -115,10 +115,8 @@ walkaddr(pagetable_t pagetable, uint64 va)
     if (va >= p->sz || va < PGROUNDUP(p->trapframe->sp))
       return 0;
     uint64 ka = (uint64)kalloc();
-    if (ka == 0)
-    {
-      return 0;
-    }
+    if (ka == 0) return 0;
+    memset((void*)ka, 0, PGSIZE); // mapping a newly-allocated page of physical memory at the faulting address
     // for system calls PTE_X is also added
     if (mappages(p->pagetable, PGROUNDDOWN(va), PGSIZE, ka, PTE_W|PTE_X|PTE_R|PTE_U) != 0)
     {
